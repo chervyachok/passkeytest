@@ -134,12 +134,9 @@ const EcoTaxi = {
 
       const storageEncryptionKey = atob(toBase64url(credentials.response.userHandle));
       console.log('decryptin key', storageEncryptionKey);
-
-      const combinedKey = `${storageEncryptionKey}:${pinCode}`;
-      const hashedKey = enigma.hash(blf.base64Encode(combinedKey));
-
-      const blf2 = new Blowfish(hashedKey);
-      let decryptedData = JSON.parse(blf2.trimZeros(blf2.decrypt(blf2.base64Decode(data.encryptedData))));
+      
+      const blf2 = new Blowfish(storageEncryptionKey, "cbc");
+      let decryptedData = JSON.parse(blf2.trimZeros(blf2.decrypt(blf2.base64Decode(data.encryptedData), pinCode)));
       console.log('decryptedData', decryptedData);
       return decryptedData;
     } catch (error) {
@@ -193,10 +190,7 @@ const EcoTaxi = {
     };       
     console.log(passkey);
 
-    const encryptionKey = enigma.hash(blf.base64Encode(`${encryptionString}:${pinCode}`));
-    console.log('hashedKey', encryptionKey);
-
-    const blf2 = new Blowfish(encryptionKey);
+    const blf2 = new Blowfish(encryptionString, "cbc");
     const store = {
       passkey,
       encryptedData: blf.base64Encode(
@@ -204,7 +198,8 @@ const EcoTaxi = {
           JSON.stringify({
             keyPair: enigma.generate_keypair(),
             payload,
-          })
+          }),
+          pinCode
         )
       ),
     };

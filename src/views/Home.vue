@@ -35,10 +35,11 @@ onMounted(() => {
 })
 
 const authorize = async () => {
+	if (!ecoTaxi.isDataStored()) return
 	$loader.show()
 	try {
 		console.log('ecoTaxi.isDataStored()', ecoTaxi.isDataStored())
-		if (!ecoTaxi.isDataStored()) return
+		
 
 		const pinCode = prompt("Enter your PIN:");
 		if (pinCode !== null) {
